@@ -86,8 +86,11 @@ class CourseControllerIntegrationTest {
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.courseId").isEqualTo(existingCourse.getCourseId());
-        // Check all the fields in this response model
+                .jsonPath("$.courseId").isEqualTo(existingCourse.getCourseId())
+                .jsonPath("$.courseName").isEqualTo(existingCourse.getCourseName())
+                .jsonPath("$.numHours").isEqualTo(existingCourse.getNumHours())
+                .jsonPath("$.numCredits").isEqualTo(existingCourse.getNumCredits())
+                .jsonPath("$.department").isEqualTo(existingCourse.getDepartment());
     }
 
     @Test
@@ -112,7 +115,10 @@ class CourseControllerIntegrationTest {
                 .value(courseResponseModel -> {
                     assertNotNull(courseResponseModel);
                     assertNotNull(courseResponseModel.courseId());
-                    // Add the rest of the fields
+                    assertNotNull(courseResponseModel.courseName());
+                    assertNotNull(courseResponseModel.numHours());
+                    assertNotNull(courseResponseModel.numCredits());
+                    assertNotNull(courseResponseModel.department());
                 });
     }
 
@@ -134,6 +140,115 @@ class CourseControllerIntegrationTest {
                     assertEquals("Course name is required", errorInfo.getMessage());
                 });
     }
+
+    @Test
+    public void whenUpdateCourse_withValidRequestBody_thenReturnUpdatedCourse() {
+        Mono.from(courseRepository.findAll().take(1))
+                .doOnNext(course -> {
+                    existingCourse = course;
+                    existingCourseId = course.getCourseId();
+                })
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
+
+        CourseRequestModel updatedRequest = new CourseRequestModel(
+                "cat-500",
+                "Math 01",
+                50,
+                4.0,
+                "Math"
+        );
+
+        webTestClient.put()
+                .uri("/api/v1/courses/{courseId}", existingCourseId)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(updatedRequest)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CourseResponseModel.class)
+                .value(updatedResponse -> {
+                    assertNotNull(updatedResponse);
+                    assertEquals(existingCourseId, updatedResponse.courseId());
+                    assertEquals("Math 01", updatedResponse.courseName());
+                    assertEquals(50, updatedResponse.numHours());
+                    assertEquals(4.0, updatedResponse.numCredits());
+                    assertEquals("Math", updatedResponse.department());
+                });
+    }
+
+    @Test
+    public void whenDeleteCourse_withExistingCourseId_thenReturnNoContent() {
+        Mono.from(courseRepository.findAll().take(1))
+                .doOnNext(course -> existingCourseId = course.getCourseId())
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
+
+        webTestClient.delete()
+                .uri("/api/v1/courses/{courseId}", existingCourseId)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    public void whenGetCourseByCourseId_withNonExistingCourseId_thenReturnNotFound() {
+        String nonExistingCourseId = "123e4567-e89b-12d3-a456-426614174000";
+
+        webTestClient.get()
+                .uri("/api/v1/courses/{courseId}", nonExistingCourseId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(HttpErrorInfo.class)
+                .value(errorInfo -> {
+                    assertNotNull(errorInfo);
+                    assertEquals("Course with id=" + nonExistingCourseId + " is not found", errorInfo.getMessage());
+                });
+    }
+
+    @Test
+    public void whenUpdateCourse_withInvalidCourseId_thenReturnBadRequest() {
+        String invalidCourseId = "123";
+
+        CourseRequestModel updatedRequest = new CourseRequestModel(
+                "phy-637",
+                "Physics 01",
+                45,
+                3.0,
+                "Physics"
+        );
+
+        webTestClient.put()
+                .uri("/api/v1/courses/{courseId}", invalidCourseId)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(updatedRequest)
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+                .expectBody(HttpErrorInfo.class)
+                .value(errorInfo -> {
+                    assertNotNull(errorInfo);
+                    assertEquals("Course id=" + invalidCourseId + " is invalid", errorInfo.getMessage());
+                });
+    }
+
+    @Test
+    public void whenDeleteCourse_withNonExistingCourseId_thenReturnNotFound() {
+        String nonExistingCourseId = "123e4567-e89b-12d3-a456-426614174000";
+
+        webTestClient.delete()
+                .uri("/api/v1/courses/{courseId}", nonExistingCourseId)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(HttpErrorInfo.class)
+                .value(errorInfo -> {
+                    assertNotNull(errorInfo);
+                    assertEquals("Course with id=" + nonExistingCourseId + " is not found", errorInfo.getMessage());
+                });
+    }
+
 
     protected String resourceToString(String relativePath) {
         final Path TEST_RESOURCES_PATH = Path.of("src/test/java/resources");

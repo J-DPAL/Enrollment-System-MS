@@ -10,4 +10,10 @@ class CoursesServiceApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void testMainMethod() {
+		CoursesServiceApplication.main(new String[] {});
+	}
+
+
 }
