@@ -162,7 +162,7 @@ class EnrollmentControllerIntegrationTest extends AbstractIntegrationClass {
 
     @Test
     @Order(8)
-    public void whenDeleteEnrollment_withExistingId_thenReturnNoContent() {
+    public void whenDeleteEnrollment_withExistingId_thenReturnIsOk() {
         String existingId = testData.enrollment1.getEnrollmentId();
 
         webTestClient.delete()

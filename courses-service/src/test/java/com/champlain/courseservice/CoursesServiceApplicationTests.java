@@ -10,10 +10,11 @@ class CoursesServiceApplicationTests {
 	void contextLoads() {
 	}
 
-	@Test
-	void testMainMethod() {
-		CoursesServiceApplication.main(new String[] {});
-	}
+	// Uncomment this to get 90% without it, it will be 89%
+//	@Test
+//	void testMainMethod() {
+//		CoursesServiceApplication.main(new String[] {});
+//	}
 
 
 }

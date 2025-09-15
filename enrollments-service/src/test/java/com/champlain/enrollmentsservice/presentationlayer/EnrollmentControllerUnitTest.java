@@ -37,7 +37,6 @@ class EnrollmentControllerUnitTest {
         testData = new TestData();
     }
 
-    // ---------------------- GET ALL ----------------------
     @Test
     void whenGetAllEnrollments_thenReturnAllEnrollments() {
         when(enrollmentService.getEnrollments())
@@ -53,7 +52,6 @@ class EnrollmentControllerUnitTest {
                 .verifyComplete();
     }
 
-    // ---------------------- GET BY ID ----------------------
     @Test
     void whenGetEnrollmentById_withExistingId_thenReturnEnrollment() {
         when(enrollmentService.getEnrollmentByEnrollmentId(testData.enrollment1.getEnrollmentId()))
@@ -67,7 +65,6 @@ class EnrollmentControllerUnitTest {
                 .verifyComplete();
     }
 
-    // Negative test: invalid ID
     @Test
     void whenGetEnrollmentById_withInvalidId_thenThrowException() {
         String invalidId = "Enrollment123";
@@ -81,7 +78,6 @@ class EnrollmentControllerUnitTest {
                 .verify();
     }
 
-    // ---------------------- ADD ----------------------
     @Test
     void whenAddEnrollment_withValidData_thenReturnCreatedEnrollment() {
         when(enrollmentService.addEnrollment(any(Mono.class)))
@@ -96,7 +92,6 @@ class EnrollmentControllerUnitTest {
                 .verifyComplete();
     }
 
-    // Negative test: non-existing student
     @Test
     void whenAddEnrollment_withNonExistingStudent_thenReturnEmpty() {
         when(enrollmentService.addEnrollment(any(Mono.class)))
@@ -110,7 +105,6 @@ class EnrollmentControllerUnitTest {
                 .verify();
     }
 
-    // Negative test: non-existing course
     @Test
     void whenAddEnrollment_withNonExistingCourse_thenReturnEmpty() {
         when(enrollmentService.addEnrollment(any(Mono.class)))
@@ -124,7 +118,6 @@ class EnrollmentControllerUnitTest {
                 .verify();
     }
 
-    // ---------------------- UPDATE ----------------------
     @Test
     void whenUpdateEnrollment_withExistingId_thenReturnUpdatedEnrollment() {
         when(enrollmentService.updateEnrollment(any(Mono.class), any(String.class)))
@@ -140,7 +133,6 @@ class EnrollmentControllerUnitTest {
                 .verifyComplete();
     }
 
-    // ---------------------- DELETE ----------------------
     @Test
     void whenDeleteEnrollment_withExistingId_thenReturnDeletedEnrollment() {
         when(enrollmentService.deleteEnrollment(testData.enrollment1.getEnrollmentId()))
@@ -157,7 +149,6 @@ class EnrollmentControllerUnitTest {
 
     @Test
     void whenAddEnrollment_withNonExistingStudent_thenThrowStudentNotFoundException() {
-        // Arrange: simulate the service returning an error for non-existing student
         when(enrollmentService.addEnrollment(any(Mono.class)))
                 .thenReturn(Mono.error(new StudentNotFoundException(TestData.NON_EXISTING_STUDENTID)));
 

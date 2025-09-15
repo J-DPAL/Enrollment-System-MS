@@ -41,6 +41,7 @@ class EnrollmentServiceUnitTest {
     @BeforeEach
     void setUp() {
         // I used lenient to avoid unnecessary stubbing exceptions
+        // Reminder to check later if I can find a different solution to avoid this error
         lenient().when(studentClient.getStudentByStudentId(testData.student1ResponseModel.studentId()))
                 .thenReturn(Mono.just(testData.student1ResponseModel));
         lenient().when(studentClient.getStudentByStudentId(testData.student2ResponseModel.studentId()))

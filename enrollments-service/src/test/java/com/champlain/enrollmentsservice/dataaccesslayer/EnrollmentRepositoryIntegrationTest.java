@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
 
@@ -66,11 +65,11 @@ class EnrollmentRepositoryIntegrationTest {
     public void whenEnrollmentIsValid_thenAddEnrollmentToDB_thenReturnOne() {
         StepVerifier
                 .create(enrollmentRepository.save(testData.enrollment1))
-                .consumeNextWith(inserted -> {
-                    assertNotNull(inserted);
-                    assertEquals(testData.enrollment1.getEnrollmentId(), inserted.getEnrollmentId());
-                    assertEquals(testData.enrollment1.getStudentId(), inserted.getStudentId());
-                    assertEquals(testData.enrollment1.getCourseId(), inserted.getCourseId());
+                .consumeNextWith(insertedEnrollment -> {
+                    assertNotNull(insertedEnrollment);
+                    assertEquals(testData.enrollment1.getEnrollmentId(), insertedEnrollment.getEnrollmentId());
+                    assertEquals(testData.enrollment1.getStudentId(), insertedEnrollment.getStudentId());
+                    assertEquals(testData.enrollment1.getCourseId(), insertedEnrollment.getCourseId());
                 })
                 .verifyComplete();
 
@@ -102,11 +101,11 @@ class EnrollmentRepositoryIntegrationTest {
 
         StepVerifier
                 .create(enrollmentRepository.save(updatedEnrollment))
-                .consumeNextWith(saved -> {
-                    assertNotNull(saved);
-                    assertEquals(updatedEnrollment.getEnrollmentId(), saved.getEnrollmentId());
-                    assertEquals(2023, saved.getEnrollmentYear());
-                    assertEquals(Semester.SPRING, saved.getSemester());
+                .consumeNextWith(savedEnrollment -> {
+                    assertNotNull(savedEnrollment);
+                    assertEquals(updatedEnrollment.getEnrollmentId(), savedEnrollment.getEnrollmentId());
+                    assertEquals(2023, savedEnrollment.getEnrollmentYear());
+                    assertEquals(Semester.SPRING, savedEnrollment.getSemester());
                 })
                 .verifyComplete();
     }
